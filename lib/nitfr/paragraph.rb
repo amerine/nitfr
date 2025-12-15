@@ -11,6 +11,7 @@ module NITFr
   # arrays on first access to any entity method.
   class Paragraph
     include TextExtractor
+    include SearchPattern
 
     attr_reader :node
 
@@ -249,19 +250,6 @@ module NITFr
 
         # Continue traversing for nested entities
         traverse_for_entities(child)
-      end
-    end
-
-    # Build a regex pattern from query
-    #
-    # @param query [String, Regexp] the search query
-    # @param case_sensitive [Boolean] whether search is case-sensitive
-    # @return [Regexp] compiled pattern
-    def build_search_pattern(query, case_sensitive)
-      if query.is_a?(Regexp)
-        case_sensitive ? query : Regexp.new(query.source, Regexp::IGNORECASE)
-      else
-        Regexp.new(Regexp.escape(query), case_sensitive ? nil : Regexp::IGNORECASE)
       end
     end
 

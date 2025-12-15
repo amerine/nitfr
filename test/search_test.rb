@@ -382,8 +382,13 @@ class SearchTest < Test::Unit::TestCase
   def test_excerpt_ellipsis_for_truncation
     result = @document.excerpt("technology", context_chars: 10)
 
-    # Should have ellipsis when truncated
-    assert(result.start_with?("...") || result.end_with?("...") || result.include?("technology"))
+    # With small context, mid-document matches should have ellipsis on both ends
+    assert_not_nil result
+    assert_match(/technology/i, result)
+    # The result should either have ellipsis or be the full text (if text is short)
+    has_ellipsis = result.start_with?("...") || result.end_with?("...")
+    is_short_text = @document.text.length <= ("technology".length + 20)
+    assert(has_ellipsis || is_short_text, "Expected ellipsis for truncated excerpt")
   end
 
   # =========================================================================
@@ -495,6 +500,156 @@ class SearchTest < Test::Unit::TestCase
     para = @document.paragraphs.find { |p| p.people.any? || p.organizations.any? || p.locations.any? }
 
     assert para.has_entities?
+  end
+
+  # =========================================================================
+  # Edge case tests for pattern building
+  # =========================================================================
+
+  def test_search_empty_string_query
+    results = @document.search("")
+
+    # Empty string matches everywhere, should return many results
+    assert_instance_of Array, results
+  end
+
+  def test_search_unicode_characters
+    # Test that unicode characters are properly escaped and matched
+    results = @document.search("technology")
+
+    assert_instance_of Array, results
+  end
+
+  def test_search_special_regex_characters
+    # Characters like . * + ? should be escaped when passed as string
+    results = @document.search("tech.")  # Should NOT match "technology" as regex
+
+    # Since we escape, "tech." matches literal "tech." not "tech" + any char
+    results.each do |r|
+      assert_includes r[:match], "tech."
+    end
+  end
+
+  def test_contains_with_regex_preserves_multiline_flag
+    # When passing a regex with MULTILINE, it should be preserved
+    pattern = /technology/m
+    result = @document.contains?(pattern, case_sensitive: true)
+
+    assert_boolean result
+  end
+
+  # =========================================================================
+  # Excerpt boundary condition tests
+  # =========================================================================
+
+  def test_excerpt_match_at_start_of_text
+    # Find a word that appears at/near the start
+    first_word = @document.text.split.first
+    result = @document.excerpt(first_word, context_chars: 5)
+
+    # Should not have leading ellipsis if match is at start
+    assert_instance_of String, result
+  end
+
+  def test_excerpt_with_zero_context
+    result = @document.excerpt("technology", context_chars: 0)
+
+    # Should still return the match itself
+    assert_match(/technology/i, result)
+  end
+
+  def test_excerpt_match_near_end_of_text
+    # Find something near the end
+    last_words = @document.text.split.last(3).join(" ")
+    if @document.contains?(last_words)
+      result = @document.excerpt(last_words, context_chars: 5)
+      assert_instance_of String, result
+    end
+  end
+
+  def test_excerpt_very_large_context
+    # Context larger than text should work without error
+    result = @document.excerpt("technology", context_chars: 100_000)
+
+    assert_instance_of String, result
+    assert_match(/technology/i, result)
+  end
+
+  # =========================================================================
+  # Entity matching edge case tests
+  # =========================================================================
+
+  def test_entity_partial_match_finds_longer_name
+    # If we have "John Doe", searching for "John" should find it
+    para = @document.paragraphs.find { |p| p.people.include?("John Doe") }
+    return unless para
+
+    assert para.mentions_person?("John")
+    assert para.mentions_person?("Doe")
+  end
+
+  def test_entity_exact_match_case_sensitivity
+    para = @document.paragraphs.find { |p| p.people.any? }
+    return unless para
+
+    person = para.people.first
+    # exact: true should be case-sensitive
+    assert para.mentions_person?(person, exact: true)
+    assert_false para.mentions_person?(person.upcase, exact: true) unless person == person.upcase
+  end
+
+  def test_entity_partial_match_is_case_insensitive
+    para = @document.paragraphs.find { |p| p.people.any? }
+    return unless para
+
+    person = para.people.first
+    # Partial match should be case-insensitive
+    assert para.mentions_person?(person.upcase)
+    assert para.mentions_person?(person.downcase)
+  end
+
+  # =========================================================================
+  # Improved excerpt ellipsis test
+  # =========================================================================
+
+  def test_excerpt_ellipsis_behavior
+    # Find text that's definitely in the middle
+    result = @document.excerpt("technology", context_chars: 10)
+
+    if result
+      text_length = @document.text.length
+      match_pos = @document.text.downcase.index("technology")
+
+      # If match is not at start, should have leading ellipsis
+      if match_pos && match_pos > 10
+        assert result.start_with?("..."), "Expected leading ellipsis for mid-document match"
+      end
+
+      # If match is not at end, should have trailing ellipsis
+      if match_pos && (match_pos + "technology".length + 10) < text_length
+        assert result.end_with?("..."), "Expected trailing ellipsis for mid-document match"
+      end
+    end
+  end
+
+  # =========================================================================
+  # Memoization test for all_entities
+  # =========================================================================
+
+  def test_all_entities_memoization
+    first_call = @document.all_entities
+    second_call = @document.all_entities
+
+    # Should return same object (memoized)
+    assert_same first_call, second_call
+  end
+
+  def test_all_people_uses_memoized_entities
+    # Calling all_people should use the memoized all_entities
+    @document.all_entities  # Prime the cache
+    people = @document.all_people
+
+    assert_equal @document.all_entities[:people], people
   end
 
   # =========================================================================

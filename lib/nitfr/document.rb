@@ -9,6 +9,8 @@ module NITFr
   # @note This parser does not process external entities (DTD references) for security.
   #   REXML by default does not expand external entities, which protects against XXE attacks.
   class Document
+    include SearchPattern
+
     attr_reader :xml_doc, :head, :body
 
     # Create a new Document from an NITF XML string
@@ -184,7 +186,7 @@ module NITFr
     # @param case_sensitive [Boolean] whether search is case-sensitive (default: false)
     # @return [Array<Hash>] array of match results with context
     def search(query, case_sensitive: false)
-      pattern = build_pattern(query, case_sensitive)
+      pattern = build_search_pattern(query, case_sensitive)
       results = []
 
       paragraphs.each_with_index do |para, index|
@@ -208,7 +210,7 @@ module NITFr
     # @param case_sensitive [Boolean] whether search is case-sensitive (default: false)
     # @return [Boolean] true if text is found
     def contains?(query, case_sensitive: false)
-      pattern = build_pattern(query, case_sensitive)
+      pattern = build_search_pattern(query, case_sensitive)
       text.match?(pattern)
     end
 
@@ -218,7 +220,7 @@ module NITFr
     # @param case_sensitive [Boolean] whether search is case-sensitive (default: false)
     # @return [Array<Paragraph>] matching paragraphs
     def paragraphs_containing(query, case_sensitive: false)
-      pattern = build_pattern(query, case_sensitive)
+      pattern = build_search_pattern(query, case_sensitive)
       paragraphs.select { |p| p.text.match?(pattern) }
     end
 
@@ -302,32 +304,31 @@ module NITFr
     #
     # @return [Array<String>] unique person names from paragraphs and docdata
     def all_people
-      (paragraphs.flat_map(&:people) + (docdata&.people || [])).uniq
+      all_entities[:people]
     end
 
     # Get all unique organizations mentioned in the document
     #
     # @return [Array<String>] unique organization names from paragraphs and docdata
     def all_organizations
-      (paragraphs.flat_map(&:organizations) + (docdata&.organizations || [])).uniq
+      all_entities[:organizations]
     end
 
     # Get all unique locations mentioned in the document
     #
     # @return [Array<String>] unique location names from paragraphs and docdata
     def all_locations
-      (paragraphs.flat_map(&:locations) + (docdata&.locations || [])).uniq
+      all_entities[:locations]
     end
 
     # Get all unique entities (people, organizations, locations) mentioned
     #
+    # Uses single-pass aggregation for efficiency when multiple entity
+    # methods are called.
+    #
     # @return [Hash] hash with :people, :organizations, :locations arrays
     def all_entities
-      {
-        people: all_people,
-        organizations: all_organizations,
-        locations: all_locations
-      }
+      @all_entities ||= aggregate_entities
     end
 
     # Count occurrences of a term in the document
@@ -336,7 +337,7 @@ module NITFr
     # @param case_sensitive [Boolean] whether search is case-sensitive (default: false)
     # @return [Integer] number of occurrences
     def count_occurrences(query, case_sensitive: false)
-      pattern = build_pattern(query, case_sensitive)
+      pattern = build_search_pattern(query, case_sensitive)
       text.scan(pattern).size
     end
 
@@ -345,9 +346,9 @@ module NITFr
     # @param query [String, Regexp] the search query
     # @param context_chars [Integer] characters of context on each side (default: 50)
     # @param case_sensitive [Boolean] whether search is case-sensitive (default: false)
-    # @return [String, nil] excerpt with match highlighted in brackets, or nil if not found
+    # @return [String, nil] excerpt with surrounding context and ellipses, or nil if not found
     def excerpt(query, context_chars: 50, case_sensitive: false)
-      pattern = build_pattern(query, case_sensitive)
+      pattern = build_search_pattern(query, case_sensitive)
       match = text.match(pattern)
       return nil unless match
 
@@ -363,17 +364,28 @@ module NITFr
 
     private
 
-    # Build a regex pattern from query
+    # Aggregate all entities in a single pass through paragraphs
     #
-    # @param query [String, Regexp] the search query
-    # @param case_sensitive [Boolean] whether search is case-sensitive
-    # @return [Regexp] compiled pattern
-    def build_pattern(query, case_sensitive)
-      if query.is_a?(Regexp)
-        case_sensitive ? query : Regexp.new(query.source, Regexp::IGNORECASE)
-      else
-        Regexp.new(Regexp.escape(query), case_sensitive ? nil : Regexp::IGNORECASE)
+    # @return [Hash] hash with :people, :organizations, :locations arrays
+    def aggregate_entities
+      result = { people: [], organizations: [], locations: [] }
+
+      paragraphs.each do |para|
+        result[:people].concat(para.people)
+        result[:organizations].concat(para.organizations)
+        result[:locations].concat(para.locations)
       end
+
+      # Add docdata entities if available
+      if docdata
+        result[:people].concat(docdata.people || [])
+        result[:organizations].concat(docdata.organizations || [])
+        result[:locations].concat(docdata.locations || [])
+      end
+
+      # Remove duplicates
+      result.transform_values!(&:uniq)
+      result
     end
 
     # Parse XML string into REXML document

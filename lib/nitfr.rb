@@ -13,6 +13,7 @@ end
 require_relative "nitfr/version"
 require_relative "nitfr/errors"
 require_relative "nitfr/text_extractor"
+require_relative "nitfr/search_pattern"
 require_relative "nitfr/document"
 require_relative "nitfr/head"
 require_relative "nitfr/body"
