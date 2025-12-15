@@ -1,0 +1,162 @@
+# frozen_string_literal: true
+
+module NITFr
+  # Represents a paragraph from an NITF document body
+  #
+  # Paragraphs can contain inline elements like emphasis,
+  # links, and other markup.
+  #
+  # Entity extraction (people, organizations, locations, emphasis) uses
+  # lazy batch extraction - a single DOM traversal populates all entity
+  # arrays on first access to any entity method.
+  class Paragraph
+    include TextExtractor
+
+    attr_reader :node
+
+    def initialize(node)
+      @node = node
+      @entities_extracted = false
+    end
+
+    # Get the plain text content of the paragraph
+    #
+    # @return [String] the paragraph text with inline elements stripped
+    def text
+      @text ||= extract_all_text(node).strip
+    end
+    alias to_s text
+
+    # Get the paragraph ID if present
+    #
+    # @return [String, nil] the paragraph ID
+    def id
+      node.attributes["id"]
+    end
+
+    # Get the paragraph's lede attribute (indicates lead paragraph)
+    #
+    # @return [String, nil] the lede value
+    def lede
+      node.attributes["lede"]
+    end
+
+    # Check if this is a lead paragraph
+    #
+    # @return [Boolean] true if marked as lead
+    def lead?
+      lede == "true" || lede == "yes"
+    end
+
+    # Get any emphasized text within the paragraph
+    #
+    # @return [Array<String>] array of emphasized text
+    def emphasis
+      extract_entities unless @entities_extracted
+      @emphasis
+    end
+
+    # Get any links within the paragraph
+    #
+    # @return [Array<Hash>] array of link info hashes
+    def links
+      extract_entities unless @entities_extracted
+      @links
+    end
+
+    # Get any person references in the paragraph
+    #
+    # @return [Array<String>] array of person names
+    def people
+      extract_entities unless @entities_extracted
+      @people
+    end
+
+    # Get any organization references in the paragraph
+    #
+    # @return [Array<String>] array of organization names
+    def organizations
+      extract_entities unless @entities_extracted
+      @organizations
+    end
+
+    # Get any location references in the paragraph
+    #
+    # @return [Array<String>] array of location names
+    def locations
+      extract_entities unless @entities_extracted
+      @locations
+    end
+
+    # Get the raw HTML/XML content of the paragraph
+    #
+    # @return [String] the inner XML
+    def inner_html
+      node.children.map(&:to_s).join
+    end
+
+    # Check if paragraph has content
+    #
+    # @return [Boolean] true if paragraph has text
+    def present?
+      !text.empty?
+    end
+
+    # Get word count for the paragraph
+    #
+    # @return [Integer] approximate word count
+    def word_count
+      return 0 if text.empty?
+
+      text.split(/\s+/).size
+    end
+
+    private
+
+    # Extract all entities in a single DOM traversal
+    #
+    # This is more efficient than running separate XPath queries
+    # for each entity type when multiple entity methods are called.
+    def extract_entities
+      @people = []
+      @organizations = []
+      @locations = []
+      @emphasis = []
+      @links = []
+
+      traverse_for_entities(node)
+
+      @entities_extracted = true
+    end
+
+    # Recursively traverse elements and extract entities
+    #
+    # @param element [REXML::Element] the element to traverse
+    def traverse_for_entities(element)
+      element.each_element do |child|
+        case child.name
+        when "person"
+          text = child.text&.strip
+          @people << text if text && !text.empty?
+        when "org"
+          text = child.text&.strip
+          @organizations << text if text && !text.empty?
+        when "location"
+          text = child.text&.strip
+          @locations << text if text && !text.empty?
+        when "em"
+          text = child.text&.strip
+          @emphasis << text if text && !text.empty?
+        when "a"
+          @links << {
+            text: child.text&.strip,
+            href: child.attributes["href"]
+          }
+        end
+
+        # Continue traversing for nested entities
+        traverse_for_entities(child)
+      end
+    end
+  end
+end

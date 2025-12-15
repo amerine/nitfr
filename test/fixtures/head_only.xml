@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nitf>
+  <head>
+    <title>Head Only Article</title>
+    <docdata>
+      <doc-id id-string="head-only-001"/>
+    </docdata>
+  </head>
+</nitf>

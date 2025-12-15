@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nitf version="-//IPTC//DTD NITF 3.5//EN">
+  <head>
+    <title>Full Featured Article</title>
+    <meta name="keywords" content="test, full, featured"/>
+    <docdata>
+      <doc-id id-string="full-001"/>
+      <date.issue norm="20241215"/>
+      <date.release norm="20241215"/>
+      <date.expire norm="20251215"/>
+      <urgency ed-urg="2"/>
+      <doc.copyright holder="Test Corp" year="2024"/>
+      <doc-scope scope="national"/>
+      <fixture fix-id="fixture-123"/>
+      <series series.name="Test Series" series.part="1" series.totalpart="5"/>
+      <ed-msg info="Test message" msg-type="advisory"/>
+      <identified-content>
+        <classifier type="subject">Testing</classifier>
+        <location>Test City</location>
+        <org>Test Organization</org>
+        <person>Test Person</person>
+      </identified-content>
+    </docdata>
+    <pubdata type="web" date.publication="20241215" name="Test Publication"/>
+    <revision-history comment="Initial version" name="Editor" function="editor" norm="20241215"/>
+  </head>
+  <body>
+    <body.head>
+      <headline>
+        <hl1>Full Featured Headline</hl1>
+        <hl2>With Secondary Headline</hl2>
+      </headline>
+      <byline>
+        By <person>John Author</person>
+        <byttl>Staff Writer</byttl>
+        <org>News Organization</org>
+        <location>New York</location>
+      </byline>
+      <dateline>NEW YORK, Dec 15</dateline>
+      <abstract>This is the abstract of the full featured article.</abstract>
+      <distributor>Wire Service</distributor>
+      <series series.name="Investigation" series.part="2" series.totalpart="3"/>
+    </body.head>
+    <body.content>
+      <p lede="true" id="p1">This is the lead paragraph with an <em>emphasized</em> word.</p>
+      <p id="p2">Second paragraph with a <a href="https://example.com">link</a>.</p>
+      <ul>
+        <li>List item 1</li>
+        <li>List item 2</li>
+      </ul>
+      <ol>
+        <li>Ordered item 1</li>
+        <li>Ordered item 2</li>
+      </ol>
+      <table>
+        <tr><td>Cell 1</td><td>Cell 2</td></tr>
+      </table>
+      <media media-type="image" id="img1" class="photo">
+        <media-reference source="test.jpg" mime-type="image/jpeg" width="640" height="480" alternate-text="Test image"/>
+        <media-caption>Test caption</media-caption>
+        <media-producer>Test photographer</media-producer>
+      </media>
+      <media media-type="video">
+        <media-reference source="test.mp4" mime-type="video/mp4"/>
+        <media-caption>Video caption</media-caption>
+      </media>
+      <bq>
+        <block>A famous quote for testing.</block>
+      </bq>
+    </body.content>
+    <body.end>
+      <tagline>Contact: test@example.com</tagline>
+      <note>Editor's note: This is a test.</note>
+      <note>Second note.</note>
+      <biblio>Reference 1</biblio>
+      <biblio>Reference 2</biblio>
+    </body.end>
+  </body>
+</nitf>

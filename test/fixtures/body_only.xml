@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nitf>
+  <body>
+    <body.head>
+      <headline>
+        <hl1>Body Only Article</hl1>
+      </headline>
+    </body.head>
+    <body.content>
+      <p>This article has no head section.</p>
+    </body.content>
+  </body>
+</nitf>

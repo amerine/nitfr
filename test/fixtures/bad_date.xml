@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nitf>
+  <head>
+    <title>Article with Invalid Date</title>
+    <docdata>
+      <doc-id id-string="bad-date-001"/>
+      <date.issue norm="not-a-date"/>
+      <date.release norm="99999999"/>
+      <urgency ed-urg="invalid"/>
+    </docdata>
+  </head>
+  <body>
+    <body.content>
+      <p>Content with bad metadata.</p>
+    </body.content>
+  </body>
+</nitf>

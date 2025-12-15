@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nitf>
+  <head>
+    <title>Artículo en Español con Ñ y acentos</title>
+  </head>
+  <body>
+    <body.head>
+      <headline>
+        <hl1>日本語のヘッドライン</hl1>
+        <hl2>中文副标题</hl2>
+      </headline>
+      <byline>Par François Müller</byline>
+    </body.head>
+    <body.content>
+      <p>Это русский текст с кириллицей.</p>
+      <p>العربية نص مع الحروف العربية</p>
+      <p>Ελληνικά κείμενο με ελληνικούς χαρακτήρες.</p>
+      <p>Emojis: 🎉 🚀 💻 🌍</p>
+    </body.content>
+  </body>
+</nitf>

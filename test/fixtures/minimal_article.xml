@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nitf>
+  <head>
+    <title>Minimal Article</title>
+  </head>
+  <body>
+    <body.head>
+      <headline>
+        <hl1>Simple Headline</hl1>
+      </headline>
+    </body.head>
+    <body.content>
+      <p>This is the only paragraph.</p>
+    </body.content>
+  </body>
+</nitf>

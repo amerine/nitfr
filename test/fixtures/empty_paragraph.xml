@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nitf>
+  <head>
+    <title>Article with Empty Paragraph</title>
+  </head>
+  <body>
+    <body.content>
+      <p></p>
+      <p>   </p>
+      <p>Real content here.</p>
+    </body.content>
+  </body>
+</nitf>

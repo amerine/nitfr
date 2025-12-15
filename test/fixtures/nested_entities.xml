@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nitf>
+  <head>
+    <title>Nested Entity Test</title>
+  </head>
+  <body>
+    <body.head>
+      <headline>
+        <hl1>Test Article</hl1>
+      </headline>
+    </body.head>
+    <body.content>
+      <p>This paragraph has a <person><em>John</em> Doe</person> with nested emphasis.</p>
+      <p>Here is <org>Tech<em>Corp</em> Inc</org> with nested formatting.</p>
+      <p>Visit <location>San <em>Francisco</em></location> for the event.</p>
+      <p>This has <em>simple emphasis</em> without nesting.</p>
+      <p>A link with text: <a href="https://example.com">Click <em>here</em></a>.</p>
+    </body.content>
+  </body>
+</nitf>

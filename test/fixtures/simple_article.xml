@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nitf SYSTEM "http://www.nitf.org/IPTC/NITF/3.5/specification/nitf-3-5.dtd">
+<nitf version="-//IPTC//DTD NITF 3.5//EN" change.date="October 18, 2007" change.time="19:30">
+  <head>
+    <title>Sample News Article Title</title>
+    <meta name="keywords" content="technology, innovation, startup"/>
+    <meta name="author" content="Jane Smith"/>
+    <docdata>
+      <doc-id id-string="article-2024-001"/>
+      <date.issue norm="20241215"/>
+      <date.release norm="20241215"/>
+      <urgency ed-urg="4"/>
+      <doc.copyright holder="Example News Corp" year="2024"/>
+      <identified-content>
+        <classifier type="subject">Technology</classifier>
+        <classifier type="subject">Business</classifier>
+        <org>TechCorp Inc</org>
+        <person>John Doe</person>
+        <location>San Francisco</location>
+      </identified-content>
+    </docdata>
+    <pubdata type="print" date.publication="20241215" name="Example Times" edition.name="Morning"/>
+  </head>
+  <body>
+    <body.head>
+      <headline>
+        <hl1>Revolutionary Technology Changes Industry</hl1>
+        <hl2>Experts predict widespread adoption within five years</hl2>
+      </headline>
+      <byline>
+        By <person>Jane Smith</person>
+        <byttl>Senior Technology Reporter</byttl>
+      </byline>
+      <dateline>SAN FRANCISCO, Dec 15</dateline>
+      <abstract>A new technology platform is set to transform how businesses operate globally.</abstract>
+    </body.head>
+    <body.content>
+      <p lede="true">A groundbreaking new technology unveiled today promises to revolutionize the way companies handle their data operations, according to industry experts.</p>
+      <p>The platform, developed by <org>TechCorp Inc</org>, uses advanced algorithms to process information at unprecedented speeds. <person>John Doe</person>, the company's CEO, announced the launch at a press conference in <location>San Francisco</location>.</p>
+      <p>"This is a game-changer for the industry," said <person>John Doe</person>. "We've been working on this for <em>five years</em>, and we're thrilled to finally share it with the world."</p>
+      <p>Industry analysts predict the technology could save businesses millions of dollars annually. For more information, visit <a href="https://example.com">our website</a>.</p>
+      <media media-type="image">
+        <media-reference source="images/tech_launch.jpg" mime-type="image/jpeg" width="800" height="600" alternate-text="TechCorp product launch event"/>
+        <media-caption>CEO John Doe presents the new platform at the launch event.</media-caption>
+        <media-producer>Photo by Alex Johnson</media-producer>
+      </media>
+      <bq>
+        <block>Innovation distinguishes between a leader and a follower.</block>
+      </bq>
+    </body.content>
+    <body.end>
+      <tagline>Contact: press@example.com</tagline>
+    </body.end>
+  </body>
+</nitf>
