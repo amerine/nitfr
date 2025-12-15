@@ -174,7 +174,207 @@ module NITFr
       to_h.to_json(*args)
     end
 
+    # =========================================================================
+    # Search Methods
+    # =========================================================================
+
+    # Search the full document text for a query string or pattern
+    #
+    # @param query [String, Regexp] the search query (string or regex)
+    # @param case_sensitive [Boolean] whether search is case-sensitive (default: false)
+    # @return [Array<Hash>] array of match results with context
+    def search(query, case_sensitive: false)
+      pattern = build_pattern(query, case_sensitive)
+      results = []
+
+      paragraphs.each_with_index do |para, index|
+        para.text.scan(pattern) do
+          match = Regexp.last_match
+          results << {
+            paragraph_index: index,
+            paragraph: para,
+            match: match[0],
+            position: match.begin(0)
+          }
+        end
+      end
+
+      results
+    end
+
+    # Check if document contains the given text
+    #
+    # @param query [String, Regexp] the search query
+    # @param case_sensitive [Boolean] whether search is case-sensitive (default: false)
+    # @return [Boolean] true if text is found
+    def contains?(query, case_sensitive: false)
+      pattern = build_pattern(query, case_sensitive)
+      text.match?(pattern)
+    end
+
+    # Find paragraphs containing the given text
+    #
+    # @param query [String, Regexp] the search query
+    # @param case_sensitive [Boolean] whether search is case-sensitive (default: false)
+    # @return [Array<Paragraph>] matching paragraphs
+    def paragraphs_containing(query, case_sensitive: false)
+      pattern = build_pattern(query, case_sensitive)
+      paragraphs.select { |p| p.text.match?(pattern) }
+    end
+
+    # Find paragraphs mentioning specific entities
+    #
+    # @param person [String, nil] person name to search for
+    # @param org [String, nil] organization name to search for
+    # @param location [String, nil] location name to search for
+    # @param match_all [Boolean] if true, paragraph must contain ALL specified entities (default: false)
+    # @return [Array<Paragraph>] matching paragraphs
+    def paragraphs_mentioning(person: nil, org: nil, location: nil, match_all: false)
+      return paragraphs if person.nil? && org.nil? && location.nil?
+
+      paragraphs.select do |para|
+        matches = []
+        matches << para.mentions_person?(person) if person
+        matches << para.mentions_org?(org) if org
+        matches << para.mentions_location?(location) if location
+
+        match_all ? matches.all? : matches.any?
+      end
+    end
+
+    # Find paragraphs using a custom block
+    #
+    # @yield [Paragraph] block to evaluate each paragraph
+    # @return [Array<Paragraph>] paragraphs where block returns true
+    # @example Find long paragraphs
+    #   doc.paragraphs_where { |p| p.word_count > 50 }
+    # @example Find lead paragraphs with links
+    #   doc.paragraphs_where { |p| p.lead? && p.links.any? }
+    def paragraphs_where(&block)
+      return paragraphs unless block_given?
+
+      paragraphs.select(&block)
+    end
+
+    # Find the first paragraph matching criteria
+    #
+    # @yield [Paragraph] block to evaluate each paragraph
+    # @return [Paragraph, nil] first matching paragraph or nil
+    def find_paragraph(&block)
+      return nil unless block_given?
+
+      paragraphs.find(&block)
+    end
+
+    # Find media by type
+    #
+    # @param type [String, Symbol, nil] media type ('image', 'video', 'audio')
+    # @return [Array<Media>] matching media objects
+    def find_media(type: nil)
+      return media if type.nil?
+
+      type_str = type.to_s
+      media.select { |m| m.type == type_str }
+    end
+
+    # Get all images from the document
+    #
+    # @return [Array<Media>] image media objects
+    def images
+      media.select(&:image?)
+    end
+
+    # Get all videos from the document
+    #
+    # @return [Array<Media>] video media objects
+    def videos
+      media.select(&:video?)
+    end
+
+    # Get all audio from the document
+    #
+    # @return [Array<Media>] audio media objects
+    def audio
+      media.select(&:audio?)
+    end
+
+    # Get all unique people mentioned in the document
+    #
+    # @return [Array<String>] unique person names from paragraphs and docdata
+    def all_people
+      (paragraphs.flat_map(&:people) + (docdata&.people || [])).uniq
+    end
+
+    # Get all unique organizations mentioned in the document
+    #
+    # @return [Array<String>] unique organization names from paragraphs and docdata
+    def all_organizations
+      (paragraphs.flat_map(&:organizations) + (docdata&.organizations || [])).uniq
+    end
+
+    # Get all unique locations mentioned in the document
+    #
+    # @return [Array<String>] unique location names from paragraphs and docdata
+    def all_locations
+      (paragraphs.flat_map(&:locations) + (docdata&.locations || [])).uniq
+    end
+
+    # Get all unique entities (people, organizations, locations) mentioned
+    #
+    # @return [Hash] hash with :people, :organizations, :locations arrays
+    def all_entities
+      {
+        people: all_people,
+        organizations: all_organizations,
+        locations: all_locations
+      }
+    end
+
+    # Count occurrences of a term in the document
+    #
+    # @param query [String, Regexp] the search query
+    # @param case_sensitive [Boolean] whether search is case-sensitive (default: false)
+    # @return [Integer] number of occurrences
+    def count_occurrences(query, case_sensitive: false)
+      pattern = build_pattern(query, case_sensitive)
+      text.scan(pattern).size
+    end
+
+    # Get excerpt around first match of query
+    #
+    # @param query [String, Regexp] the search query
+    # @param context_chars [Integer] characters of context on each side (default: 50)
+    # @param case_sensitive [Boolean] whether search is case-sensitive (default: false)
+    # @return [String, nil] excerpt with match highlighted in brackets, or nil if not found
+    def excerpt(query, context_chars: 50, case_sensitive: false)
+      pattern = build_pattern(query, case_sensitive)
+      match = text.match(pattern)
+      return nil unless match
+
+      start_pos = [match.begin(0) - context_chars, 0].max
+      end_pos = [match.end(0) + context_chars, text.length].min
+
+      prefix = start_pos > 0 ? "..." : ""
+      suffix = end_pos < text.length ? "..." : ""
+
+      excerpt_text = text[start_pos...end_pos]
+      "#{prefix}#{excerpt_text}#{suffix}"
+    end
+
     private
+
+    # Build a regex pattern from query
+    #
+    # @param query [String, Regexp] the search query
+    # @param case_sensitive [Boolean] whether search is case-sensitive
+    # @return [Regexp] compiled pattern
+    def build_pattern(query, case_sensitive)
+      if query.is_a?(Regexp)
+        case_sensitive ? query : Regexp.new(query.source, Regexp::IGNORECASE)
+      else
+        Regexp.new(Regexp.escape(query), case_sensitive ? nil : Regexp::IGNORECASE)
+      end
+    end
 
     # Parse XML string into REXML document
     #

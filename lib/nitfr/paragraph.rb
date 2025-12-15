@@ -111,6 +111,82 @@ module NITFr
       text.split(/\s+/).size
     end
 
+    # =========================================================================
+    # Search Helper Methods
+    # =========================================================================
+
+    # Check if paragraph contains the given text
+    #
+    # @param query [String, Regexp] the search query
+    # @param case_sensitive [Boolean] whether search is case-sensitive (default: false)
+    # @return [Boolean] true if text is found
+    def contains?(query, case_sensitive: false)
+      pattern = build_search_pattern(query, case_sensitive)
+      text.match?(pattern)
+    end
+
+    # Check if paragraph mentions a specific person
+    #
+    # @param name [String] the person name to search for
+    # @param exact [Boolean] if true, requires exact match (default: false)
+    # @return [Boolean] true if person is mentioned
+    def mentions_person?(name, exact: false)
+      entity_match?(people, name, exact)
+    end
+
+    # Check if paragraph mentions a specific organization
+    #
+    # @param name [String] the organization name to search for
+    # @param exact [Boolean] if true, requires exact match (default: false)
+    # @return [Boolean] true if organization is mentioned
+    def mentions_org?(name, exact: false)
+      entity_match?(organizations, name, exact)
+    end
+
+    # Check if paragraph mentions a specific location
+    #
+    # @param name [String] the location name to search for
+    # @param exact [Boolean] if true, requires exact match (default: false)
+    # @return [Boolean] true if location is mentioned
+    def mentions_location?(name, exact: false)
+      entity_match?(locations, name, exact)
+    end
+
+    # Check if paragraph mentions any of the given entities
+    #
+    # @param person [String, nil] person name to check
+    # @param org [String, nil] organization name to check
+    # @param location [String, nil] location name to check
+    # @return [Boolean] true if any specified entity is mentioned
+    def mentions?(person: nil, org: nil, location: nil)
+      return false if person.nil? && org.nil? && location.nil?
+
+      (person && mentions_person?(person)) ||
+        (org && mentions_org?(org)) ||
+        (location && mentions_location?(location))
+    end
+
+    # Check if paragraph has any links
+    #
+    # @return [Boolean] true if paragraph contains links
+    def has_links?
+      links.any?
+    end
+
+    # Check if paragraph has any emphasis
+    #
+    # @return [Boolean] true if paragraph contains emphasized text
+    def has_emphasis?
+      emphasis.any?
+    end
+
+    # Check if paragraph mentions any entities
+    #
+    # @return [Boolean] true if paragraph contains any person, org, or location references
+    def has_entities?
+      people.any? || organizations.any? || locations.any?
+    end
+
     # Convert paragraph to a Hash representation
     #
     # @return [Hash] the paragraph as a hash
@@ -173,6 +249,34 @@ module NITFr
 
         # Continue traversing for nested entities
         traverse_for_entities(child)
+      end
+    end
+
+    # Build a regex pattern from query
+    #
+    # @param query [String, Regexp] the search query
+    # @param case_sensitive [Boolean] whether search is case-sensitive
+    # @return [Regexp] compiled pattern
+    def build_search_pattern(query, case_sensitive)
+      if query.is_a?(Regexp)
+        case_sensitive ? query : Regexp.new(query.source, Regexp::IGNORECASE)
+      else
+        Regexp.new(Regexp.escape(query), case_sensitive ? nil : Regexp::IGNORECASE)
+      end
+    end
+
+    # Check if any entity matches the given name
+    #
+    # @param entities [Array<String>] array of entity names
+    # @param name [String] name to search for
+    # @param exact [Boolean] require exact match
+    # @return [Boolean] true if match found
+    def entity_match?(entities, name, exact)
+      if exact
+        entities.any? { |e| e == name }
+      else
+        pattern = /#{Regexp.escape(name)}/i
+        entities.any? { |e| e.match?(pattern) }
       end
     end
   end
