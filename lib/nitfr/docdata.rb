@@ -133,6 +133,28 @@ module NITFr
       identified_content[:people] || []
     end
 
+    # Convert docdata to a Hash representation
+    #
+    # @return [Hash] the docdata as a hash
+    def to_h
+      {
+        doc_id: doc_id,
+        issue_date: issue_date&.to_s,
+        release_date: release_date&.to_s,
+        expire_date: expire_date&.to_s,
+        urgency: urgency,
+        copyright: copyright.empty? ? nil : copyright,
+        doc_scope: doc_scope,
+        fixture: fixture,
+        series: series.empty? ? nil : series,
+        management_status: management_status.empty? ? nil : management_status,
+        subjects: subjects.empty? ? nil : subjects,
+        locations: locations.empty? ? nil : locations,
+        organizations: organizations.empty? ? nil : organizations,
+        people: people.empty? ? nil : people
+      }.compact
+    end
+
     private
 
     def xpath_first(path)

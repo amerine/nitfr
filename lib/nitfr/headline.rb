@@ -49,6 +49,16 @@ module NITFr
       !primary.nil? || !secondary.nil?
     end
 
+    # Convert headline to a Hash representation
+    #
+    # @return [Hash] the headline as a hash
+    def to_h
+      {
+        primary: primary,
+        secondary: secondary
+      }.compact
+    end
+
     private
 
     def xpath_first(path)

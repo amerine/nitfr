@@ -57,6 +57,19 @@ module NITFr
       !text.empty?
     end
 
+    # Convert byline to a Hash representation
+    #
+    # @return [Hash] the byline as a hash
+    def to_h
+      {
+        text: text,
+        person: person,
+        title: title,
+        location: location,
+        org: org
+      }.compact
+    end
+
     private
 
     def xpath_first(path)

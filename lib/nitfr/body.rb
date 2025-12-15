@@ -132,6 +132,26 @@ module NITFr
       body_end_content[:notes] || []
     end
 
+    # Convert body to a Hash representation
+    #
+    # @return [Hash] the body as a hash
+    def to_h
+      {
+        headline: headline&.to_h,
+        byline: byline&.to_h,
+        dateline: dateline,
+        abstract: abstract,
+        distributor: distributor,
+        series: series,
+        paragraphs: paragraphs.map(&:to_h),
+        media: media.empty? ? nil : media.map(&:to_h),
+        block_quotes: block_quotes.empty? ? nil : block_quotes,
+        lists: lists.empty? ? nil : lists,
+        tagline: tagline,
+        notes: notes.empty? ? nil : notes
+      }.compact
+    end
+
     private
 
     def xpath_first(context, path)

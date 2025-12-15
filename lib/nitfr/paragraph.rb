@@ -111,6 +111,23 @@ module NITFr
       text.split(/\s+/).size
     end
 
+    # Convert paragraph to a Hash representation
+    #
+    # @return [Hash] the paragraph as a hash
+    def to_h
+      {
+        id: id,
+        text: text,
+        lead: lead? || nil,
+        word_count: word_count,
+        people: people.empty? ? nil : people,
+        organizations: organizations.empty? ? nil : organizations,
+        locations: locations.empty? ? nil : locations,
+        emphasis: emphasis.empty? ? nil : emphasis,
+        links: links.empty? ? nil : links
+      }.compact
+    end
+
     private
 
     # Extract all entities in a single DOM traversal

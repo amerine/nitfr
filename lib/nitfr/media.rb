@@ -126,6 +126,24 @@ module NITFr
       }.compact
     end
 
+    # Convert media to a Hash representation
+    #
+    # @return [Hash] the media as a hash
+    def to_h
+      {
+        type: type,
+        source: source,
+        mime_type: mime_type,
+        width: width,
+        height: height,
+        alt_text: alt_text,
+        caption: caption,
+        credit: credit,
+        metadata: metadata.empty? ? nil : metadata,
+        references: references.size > 1 ? references : nil
+      }.compact
+    end
+
     private
 
     def xpath_first(path)

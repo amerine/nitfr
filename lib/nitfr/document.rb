@@ -127,6 +127,31 @@ module NITFr
       @xml_doc.to_s
     end
 
+    # Convert document to a Hash representation
+    #
+    # @return [Hash] the document as a hash
+    def to_h
+      {
+        version: version,
+        change_date: change_date,
+        change_time: change_time,
+        title: title,
+        doc_id: doc_id,
+        issue_date: issue_date&.to_s,
+        head: head&.to_h,
+        body: body&.to_h
+      }.compact
+    end
+
+    # Convert document to JSON string
+    #
+    # @param args [Array] arguments passed to JSON.generate
+    # @return [String] JSON representation of the document
+    def to_json(*args)
+      require "json"
+      to_h.to_json(*args)
+    end
+
     private
 
     # Parse XML string into REXML document

@@ -60,6 +60,20 @@ module NITFr
       end
     end
 
+    # Convert head to a Hash representation
+    #
+    # @return [Hash] the head as a hash
+    def to_h
+      {
+        title: title,
+        meta: meta.empty? ? nil : meta,
+        keywords: keywords.empty? ? nil : keywords,
+        pubdata: pubdata.empty? ? nil : pubdata,
+        revision_history: revision_history.empty? ? nil : revision_history,
+        docdata: docdata&.to_h
+      }.compact
+    end
+
     private
 
     def xpath_first(path)
