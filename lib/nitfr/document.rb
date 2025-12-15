@@ -64,6 +64,28 @@ module NITFr
       @text ||= paragraphs.map(&:text).join("\n\n")
     end
 
+    # Get the total word count of the document
+    #
+    # @return [Integer] total word count across all paragraphs
+    def word_count
+      @word_count ||= paragraphs.sum(&:word_count)
+    end
+
+    # Get the estimated reading time
+    #
+    # @param words_per_minute [Integer] reading speed (default: 200)
+    # @return [String] human-readable reading time (e.g., "3 min read")
+    def reading_time(words_per_minute: 200)
+      minutes = (word_count / words_per_minute.to_f).ceil
+      if minutes < 1
+        "Less than 1 min read"
+      elsif minutes == 1
+        "1 min read"
+      else
+        "#{minutes} min read"
+      end
+    end
+
     # Get all media objects (images, etc.) from the document
     #
     # @return [Array<Media>] array of media objects
