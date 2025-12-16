@@ -10,6 +10,7 @@ module NITFr
   #   REXML by default does not expand external entities, which protects against XXE attacks.
   class Document
     include SearchPattern
+    include Exporter
 
     attr_reader :xml_doc, :head, :body
 
@@ -50,6 +51,13 @@ module NITFr
     # @return [Byline, nil] the byline object
     def byline
       body&.byline
+    end
+
+    # Get the slugline (section/category identifier)
+    #
+    # @return [String, nil] the slugline text
+    def slugline
+      body&.slugline
     end
 
     # Get all paragraphs from the body content
@@ -93,6 +101,13 @@ module NITFr
     # @return [Array<Media>] array of media objects
     def media
       body&.media || []
+    end
+
+    # Get all footnotes from the document
+    #
+    # @return [Array<Footnote>] array of footnote objects
+    def footnotes
+      body&.footnotes || []
     end
 
     # Get document metadata from docdata

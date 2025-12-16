@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nitf SYSTEM "http://www.nitf.org/IPTC/NITF/3.5/specification/nitf-3-5.dtd">
+<nitf version="-//IPTC//DTD NITF 3.5//EN">
+  <head>
+    <title>Article with Slugline</title>
+  </head>
+  <body>
+    <body.head>
+      <headline>
+        <hl1>Sports News Update</hl1>
+      </headline>
+      <slugline>SPORTS-BASKETBALL-NBA</slugline>
+      <dateline>NEW YORK, Dec 15</dateline>
+    </body.head>
+    <body.content>
+      <p>The latest sports news from around the league.</p>
+    </body.content>
+  </body>
+</nitf>

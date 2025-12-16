@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nitf SYSTEM "http://www.nitf.org/IPTC/NITF/3.5/specification/nitf-3-5.dtd">
+<nitf version="-//IPTC//DTD NITF 3.5//EN">
+  <head>
+    <title>Article with Line Breaks</title>
+  </head>
+  <body>
+    <body.head>
+      <headline>
+        <hl1>Poetry Corner</hl1>
+      </headline>
+    </body.head>
+    <body.content>
+      <p>First line of the poem<br/>Second line of the poem<br/>Third line of the poem</p>
+      <p>A paragraph without any line breaks at all.</p>
+      <p>Address line one<br/>Address line two<br/>City, State ZIP</p>
+    </body.content>
+  </body>
+</nitf>

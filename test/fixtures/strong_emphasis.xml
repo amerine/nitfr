@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nitf SYSTEM "http://www.nitf.org/IPTC/NITF/3.5/specification/nitf-3-5.dtd">
+<nitf version="-//IPTC//DTD NITF 3.5//EN">
+  <head>
+    <title>Strong Emphasis Test</title>
+  </head>
+  <body>
+    <body.head>
+      <headline>
+        <hl1>Testing Strong Elements</hl1>
+      </headline>
+    </body.head>
+    <body.content>
+      <p>This paragraph has <strong>bold text</strong> and <em>italic text</em> together.</p>
+      <p>Another paragraph with <strong>important information</strong> that should be highlighted.</p>
+      <p>A paragraph with both <strong>critical</strong> and <strong>urgent</strong> strong elements.</p>
+      <p>Plain text without any formatting.</p>
+    </body.content>
+  </body>
+</nitf>

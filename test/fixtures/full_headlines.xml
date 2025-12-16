@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nitf SYSTEM "http://www.nitf.org/IPTC/NITF/3.5/specification/nitf-3-5.dtd">
+<nitf version="-//IPTC//DTD NITF 3.5//EN">
+  <head>
+    <title>Full Headlines Test</title>
+  </head>
+  <body>
+    <body.head>
+      <headline>
+        <hl1>Primary Headline</hl1>
+        <hl2>Secondary Headline</hl2>
+        <hl3>Tertiary Headline</hl3>
+        <hl4>Quaternary Headline</hl4>
+        <hl5>Quinary Headline</hl5>
+      </headline>
+    </body.head>
+    <body.content>
+      <p>Article content with all five headline levels.</p>
+    </body.content>
+  </body>
+</nitf>

@@ -39,6 +39,13 @@ module NITFr
       @dateline ||= (body_head && xpath_first(body_head, "dateline"))&.text&.strip
     end
 
+    # Get the slugline (section/category identifier)
+    #
+    # @return [String, nil] the slugline text
+    def slugline
+      @slugline ||= (body_head && xpath_first(body_head, "slugline"))&.text&.strip
+    end
+
     # Get the abstract/summary
     #
     # @return [String, nil] the abstract text
@@ -111,6 +118,19 @@ module NITFr
       end
     end
 
+    # Get all footnotes from the document
+    #
+    # Footnotes can appear in body.content or body.end
+    #
+    # @return [Array<Footnote>] array of footnote objects
+    def footnotes
+      @footnotes ||= begin
+        content_fns = body_content ? xpath_match(body_content, ".//fn") : []
+        end_fns = body_end ? xpath_match(body_end, ".//fn") : []
+        (content_fns + end_fns).map { |fn| Footnote.new(fn) }
+      end
+    end
+
     # Get the body.end content (tagline, bibliography)
     #
     # @return [Hash] body end content
@@ -140,6 +160,7 @@ module NITFr
         headline: headline&.to_h,
         byline: byline&.to_h,
         dateline: dateline,
+        slugline: slugline,
         abstract: abstract,
         distributor: distributor,
         series: series,
@@ -147,6 +168,7 @@ module NITFr
         media: media.empty? ? nil : media.map(&:to_h),
         block_quotes: block_quotes.empty? ? nil : block_quotes,
         lists: lists.empty? ? nil : lists,
+        footnotes: footnotes.empty? ? nil : footnotes.map(&:to_h),
         tagline: tagline,
         notes: notes.empty? ? nil : notes
       }.compact

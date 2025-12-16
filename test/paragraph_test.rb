@@ -136,3 +136,78 @@ class ParagraphTest < Test::Unit::TestCase
     assert_match(/TechCorp.*Inc/, para_org.text)
   end
 end
+
+class StrongEmphasisTest < Test::Unit::TestCase
+  include TestHelper
+
+  def setup
+    xml = load_fixture("strong_emphasis.xml")
+    document = NITFr::Document.new(xml)
+    @paragraphs = document.paragraphs
+  end
+
+  def test_strong_extracts_strong_text
+    para_with_strong = @paragraphs.first
+    assert_includes para_with_strong.strong, "bold text"
+  end
+
+  def test_strong_returns_empty_array_when_no_strong_elements
+    para_without_strong = @paragraphs.last
+    assert_equal [], para_without_strong.strong
+  end
+
+  def test_multiple_strong_elements_in_paragraph
+    para_with_multiple = @paragraphs[2]  # "critical" and "urgent"
+    assert_includes para_with_multiple.strong, "critical"
+    assert_includes para_with_multiple.strong, "urgent"
+    assert_equal 2, para_with_multiple.strong.size
+  end
+
+  def test_has_strong_returns_true_when_strong_exists
+    para_with_strong = @paragraphs.first
+    assert para_with_strong.has_strong?
+  end
+
+  def test_has_strong_returns_false_when_no_strong
+    para_without_strong = @paragraphs.last
+    assert_false para_without_strong.has_strong?
+  end
+
+  def test_strong_and_emphasis_coexist
+    para = @paragraphs.first
+    assert_includes para.strong, "bold text"
+    assert_includes para.emphasis, "italic text"
+  end
+
+  def test_to_h_includes_strong_when_present
+    para = @paragraphs.first
+    hash = para.to_h
+
+    assert hash.key?(:strong)
+    assert_includes hash[:strong], "bold text"
+  end
+
+  def test_to_h_excludes_strong_when_empty
+    para = @paragraphs.last
+    hash = para.to_h
+
+    assert_nil hash[:strong]
+  end
+
+  def test_strong_extraction_with_lazy_batch
+    para = @paragraphs.first
+
+    # Before accessing strong, entities not extracted
+    assert_false para.instance_variable_get(:@entities_extracted)
+
+    # Access strong triggers extraction
+    para.strong
+
+    # Now entities are extracted
+    assert para.instance_variable_get(:@entities_extracted)
+
+    # All other arrays are also populated
+    assert_instance_of Array, para.instance_variable_get(:@emphasis)
+    assert_instance_of Array, para.instance_variable_get(:@strong)
+  end
+end

@@ -49,12 +49,20 @@ module NITFr
       lede == "true" || lede == "yes"
     end
 
-    # Get any emphasized text within the paragraph
+    # Get any emphasized text within the paragraph (em tags)
     #
     # @return [Array<String>] array of emphasized text
     def emphasis
       extract_entities unless @entities_extracted
       @emphasis
+    end
+
+    # Get any strong/bold text within the paragraph (strong tags)
+    #
+    # @return [Array<String>] array of strong text
+    def strong
+      extract_entities unless @entities_extracted
+      @strong
     end
 
     # Get any links within the paragraph
@@ -181,6 +189,13 @@ module NITFr
       emphasis.any?
     end
 
+    # Check if paragraph has any strong/bold text
+    #
+    # @return [Boolean] true if paragraph contains strong text
+    def has_strong?
+      strong.any?
+    end
+
     # Check if paragraph mentions any entities
     #
     # @return [Boolean] true if paragraph contains any person, org, or location references
@@ -201,6 +216,7 @@ module NITFr
         organizations: organizations.empty? ? nil : organizations,
         locations: locations.empty? ? nil : locations,
         emphasis: emphasis.empty? ? nil : emphasis,
+        strong: strong.empty? ? nil : strong,
         links: links.empty? ? nil : links
       }.compact
     end
@@ -216,6 +232,7 @@ module NITFr
       @organizations = []
       @locations = []
       @emphasis = []
+      @strong = []
       @links = []
 
       traverse_for_entities(node)
@@ -241,6 +258,9 @@ module NITFr
         when "em"
           text = child.text&.strip
           @emphasis << text if text && !text.empty?
+        when "strong"
+          text = child.text&.strip
+          @strong << text if text && !text.empty?
         when "a"
           @links << {
             text: child.text&.strip,

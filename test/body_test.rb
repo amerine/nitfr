@@ -46,4 +46,47 @@ class BodyTest < Test::Unit::TestCase
   def test_tagline_returns_tagline_from_body_end
     assert_equal "Contact: press@example.com", @body.tagline
   end
+
+  def test_slugline_returns_nil_when_not_present
+    assert_nil @body.slugline
+  end
+end
+
+class SluglineTest < Test::Unit::TestCase
+  include TestHelper
+
+  def setup
+    xml = load_fixture("with_slugline.xml")
+    @document = NITFr::Document.new(xml)
+    @body = @document.body
+  end
+
+  def test_body_slugline_returns_slugline_text
+    assert_equal "SPORTS-BASKETBALL-NBA", @body.slugline
+  end
+
+  def test_document_slugline_returns_slugline_text
+    assert_equal "SPORTS-BASKETBALL-NBA", @document.slugline
+  end
+
+  def test_slugline_is_memoized
+    first_call = @body.slugline
+    second_call = @body.slugline
+
+    assert_equal first_call, second_call
+  end
+
+  def test_slugline_included_in_body_to_h
+    hash = @body.to_h
+
+    assert_equal "SPORTS-BASKETBALL-NBA", hash[:slugline]
+  end
+
+  def test_slugline_excluded_from_to_h_when_nil
+    xml = load_fixture("simple_article.xml")
+    doc = NITFr::Document.new(xml)
+    hash = doc.body.to_h
+
+    assert_nil hash[:slugline]
+  end
 end

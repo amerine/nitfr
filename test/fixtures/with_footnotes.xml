@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nitf SYSTEM "http://www.nitf.org/IPTC/NITF/3.5/specification/nitf-3-5.dtd">
+<nitf version="-//IPTC//DTD NITF 3.5//EN">
+  <head>
+    <title>Article with Footnotes</title>
+  </head>
+  <body>
+    <body.head>
+      <headline>
+        <hl1>Research Study Released</hl1>
+      </headline>
+    </body.head>
+    <body.content>
+      <p>The study found significant results in the control group.</p>
+      <fn id="fn1">
+        <fn-label>1</fn-label>
+        <fn-value>Control group consisted of 100 participants aged 18-65.</fn-value>
+      </fn>
+      <p>Additional analysis revealed important patterns.</p>
+      <fn id="fn2">
+        <fn-label>2</fn-label>
+        <fn-value>Statistical significance was p &lt; 0.05.</fn-value>
+      </fn>
+    </body.content>
+    <body.end>
+      <fn id="fn3">
+        <fn-label>*</fn-label>
+        <fn-value>This study was funded by the National Science Foundation.</fn-value>
+      </fn>
+    </body.end>
+  </body>
+</nitf>

@@ -3,7 +3,7 @@
 module NITFr
   # Represents headline information from an NITF document
   #
-  # NITF supports multiple headline levels (hl1, hl2) as well as
+  # NITF supports multiple headline levels (hl1 through hl5) as well as
   # headline (alternate headline) elements.
   class Headline
     attr_reader :node
@@ -28,11 +28,35 @@ module NITFr
     end
     alias hl2 secondary
 
+    # Get the tertiary headline (hl3)
+    #
+    # @return [String, nil] the tertiary headline text
+    def tertiary
+      @tertiary ||= xpath_first("hl3")&.text&.strip
+    end
+    alias hl3 tertiary
+
+    # Get the quaternary headline (hl4)
+    #
+    # @return [String, nil] the quaternary headline text
+    def quaternary
+      @quaternary ||= xpath_first("hl4")&.text&.strip
+    end
+    alias hl4 quaternary
+
+    # Get the quinary headline (hl5)
+    #
+    # @return [String, nil] the quinary headline text
+    def quinary
+      @quinary ||= xpath_first("hl5")&.text&.strip
+    end
+    alias hl5 quinary
+
     # Get all headline levels as an array
     #
     # @return [Array<String>] array of headline texts in order
     def all
-      @all ||= [primary, secondary].compact
+      @all ||= [primary, secondary, tertiary, quaternary, quinary].compact
     end
 
     # Get the full headline text (all levels joined)
@@ -46,7 +70,7 @@ module NITFr
     #
     # @return [Boolean] true if any headline text exists
     def present?
-      !primary.nil? || !secondary.nil?
+      all.any?
     end
 
     # Convert headline to a Hash representation
@@ -55,7 +79,10 @@ module NITFr
     def to_h
       {
         primary: primary,
-        secondary: secondary
+        secondary: secondary,
+        tertiary: tertiary,
+        quaternary: quaternary,
+        quinary: quinary
       }.compact
     end
 
